@@ -1,0 +1,44 @@
+
+//void evaluateResources(void)
+//{
+//    char debBfr[21];
+//    putStr("T?1");
+//    getStr(debBfr, 8, TIMEOUT_HUMAN);
+//        sprintf(ioBfr, "\t[%s]\r\n", debBfr);   // DEB
+//        putStr(debBfr);     // DEB
+//}
+
+    // ---------------------
+    // Called immedaitely after polling children.
+    // Update resource table.
+    //  TODO needs complete rework
+//void evaluateResources(void)
+//{
+//    byte ch;
+////    resource.airConditioner &= 0xFF00;      // Local resources in high byte
+////    resource.heater &= 0xFF00;              // They are locally programmed
+////
+////    resource.airExchanger &= 0xFF00;
+////    resource.dehumidifier &= 0xFF00;
+////    resource.humidifier &= 0xFF00;
+////    resource.intFanTH &= 0xFF00;
+////    resource.outsideTH &= 0xFF00;
+////    resource.liquidSensor &= 0xFF00;
+////
+////    for(ch = 0; ch < NUM_CHILDREN; ch++)
+////    {
+////        if (child[ch].eqWord & CHILD_EQPT_TH_OUTSIDE)
+////            resource.outsideTH = (1 << ch);        // Can only be one. Highest gets priority
+////        if (child[ch].eqWord & CHILD_EQPT_TH_INTFAN)
+////            resource.intFanTH |= (1 << ch);
+////        if ((child[ch].eqWord & CHILD_EQPT_DEHUM_K1) || (child[ch].eqWord & CHILD_EQPT_DEHUM_K2))
+////            resource.dehumidifier |= (1 << ch);
+////        if ((child[ch].eqWord & CHILD_EQPT_EXTFAN_K1) || (child[ch].eqWord & CHILD_EQPT_EXTFAN_K2))
+////            resource.airExchanger |= (1 << ch);
+////        if ((child[ch].eqWord & CHILD_EQPT_HUMIDIFIER_K1) || (child[ch].eqWord & CHILD_EQPT_HUMIDIFIER_K2))
+////            resource.humidifier |= (1 << ch);
+////        if (child[ch].eqWord & CHILD_EQPT_LIQUIDSENSOR)
+////            resource.liquidSensor |= (1 << ch);
+////    }
+//
+//}

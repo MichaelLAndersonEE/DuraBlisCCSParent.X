@@ -1,0 +1,459 @@
+   int retVal = 0;
+    char actionChar = 0;
+    byte c;
+    char parmBfr[PARM_LEN + 1];
+    double parmVal;
+
+  extern char pnetVer;
+    extern unsigned sysFault;
+
+            // Not parent's turn, so quiz children in turn
+
+
+        // First do all the simple Relay A possibilities
+    actionChar = 0;                 // Preclear
+    if (climateStatus & TOO_HOT)
+    {
+        if ((resource[nodeNum].airConditioner & 0x01) && !(oP.sysStat & ST_AIR_EXCHGR_ON))
+        {
+            sprintf(ioBfr, "K%ca+\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_COLD)
+    {
+        if (resource[nodeNum].airConditioner & 0x01)
+        {
+            sprintf(ioBfr, "K%ca-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    if (climateStatus & TOO_COLD)
+    {
+        if ((resource[nodeNum].heater & 0x01) && !(oP.sysStat & ST_AIR_EXCHGR_ON))
+        {
+            sprintf(ioBfr, "K%ca+\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_HOT)
+    {
+        if (resource[nodeNum].heater & 0x01)
+        {
+            sprintf(ioBfr, "K%ca-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    if (climateStatus & TOO_DAMP)
+    {
+        if (resource[nodeNum].deHumidifier & 0x01)
+        {
+            sprintf(ioBfr, "K%ca+\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_DRY)
+    {
+        if (resource[nodeNum].deHumidifier & 0x01)
+        {
+            sprintf(ioBfr, "K%ca-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    if (climateStatus & TOO_DRY)
+    {
+        if (resource[nodeNum].humidifier & 0x01)
+        {
+            sprintf(ioBfr, "K%ca+\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_DAMP)
+    {
+        if (resource[nodeNum].humidifier & 0x01)
+        {
+            sprintf(ioBfr, "K%ca-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+
+    if (actionChar)
+    {
+        putStr(ioBfr, true);                            // Parse for Relay A response
+        rs485TransmitEna(0);  // DEB
+        if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+        if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+        if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+        if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }        // Protocol fail
+        if(ioBfr[3] != 'a'){ sysFault |= FLT_COMMUNICATION; retVal = -4; }                  // Protocol fail
+    }
+
+        // Second, do all the simple Relay B possibilities
+    actionChar = 0;                 // Preclear
+    if (climateStatus & TOO_HOT)
+    {
+        if ((resource[nodeNum].airConditioner & 0x02) && !(oP.sysStat & ST_AIR_EXCHGR_ON))
+        {
+            sprintf(ioBfr, "K%cb+\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_COLD)
+    {
+        if (resource[nodeNum].airConditioner & 0x02)
+        {
+            sprintf(ioBfr, "K%cb-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    if (climateStatus & TOO_COLD)
+    {
+        if ((resource[nodeNum].heater & 0x02) && !(oP.sysStat & ST_AIR_EXCHGR_ON))
+        {
+            sprintf(ioBfr, "K%cb+\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_HOT)
+    {
+        if (resource[nodeNum].heater & 0x02)
+        {
+            sprintf(ioBfr, "K%cb-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    if (climateStatus & TOO_DAMP)
+    {
+        if (resource[nodeNum].deHumidifier & 0x02)
+        {
+            sprintf(ioBfr, "K%cb+\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_DRY)
+    {
+        if (resource[nodeNum].deHumidifier & 0x02)
+        {
+            sprintf(ioBfr, "K%cb-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+    if (climateStatus & TOO_DRY)
+    {
+        if (resource[nodeNum].humidifier & 0x02)
+        {
+            sprintf(ioBfr, "K%cb+\r", nodeNum + '0' );
+            actionChar = 'k';
+        }
+    }
+    else if (climateStatus & TOO_DAMP)
+    {
+        if (resource[nodeNum].humidifier & 0x02)
+        {
+            sprintf(ioBfr, "K%cb-\r", nodeNum + '0');
+            actionChar = 'k';
+        }
+    }
+
+    if (actionChar)
+    {
+        putStr(ioBfr, true);                 // Parse for Relay B response
+        rs485TransmitEna(0);  // DEB
+        if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+        if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+        if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+        if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }          // Protocol fail
+        if(ioBfr[3] != 'b'){ sysFault |= FLT_COMMUNICATION; retVal = -4; }          // Protocol fail
+    }
+
+        // Third, handle Internal Fans
+    actionChar = 0;                         // Preclear
+    if (resource[nodeNum].internalFan)
+    {
+        sprintf(ioBfr, "H%c?\r", nodeNum + '0');
+        putStr(ioBfr, true);
+        rs485TransmitEna(0);  // DEB
+        actionChar = 'h';
+
+                // Parse for Humidity response
+        if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+        if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+        if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+        if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }          // Protocol fail
+        for(c = 0; c < PARM_LEN; c++)
+        {
+            parmBfr[c] = ioBfr[c + 3];
+            if (parmBfr[c] == '\r') { parmBfr[c] = 0; break; }
+        }
+        parmBfr[c] = 0;
+        parmVal = atof(parmBfr);
+        if (parmVal > REASONABLE_RH_MIN & parmVal < REASONABLE_RH_MAX)
+        {
+            if (parmVal > ( (1.0 + oP.deadBandFactor) * oP.setPointRelHum))
+            {
+                if (resource[nodeNum].internalFan & 0x01)
+                {
+                    sprintf(ioBfr, "P%ca+\r", nodeNum + '0' );
+                    actionChar = 'p';
+                }
+            }
+            else if (parmVal < ( (1.0 - oP.deadBandFactor) * oP.setPointRelHum))
+            {
+                if (resource[nodeNum].internalFan & 0x01)
+                {
+                    sprintf(ioBfr, "P%ca-\r", nodeNum + '0');
+                    actionChar = 'p';
+                }
+            }
+        }
+        if (actionChar)
+        {
+            putStr(ioBfr, true);
+            rs485TransmitEna(0);  // DEB
+                    // Parse for Power Swi A response
+            if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+            if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+            if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+            if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }          // Protocol fail
+            if(ioBfr[3] != 'a'){ sysFault |= FLT_COMMUNICATION; retVal = -4; }          // Protocol fail
+        }
+
+            // Now possible PwrSwi on B
+        actionChar = 0;
+        if (parmVal > ( (1.0 + oP.deadBandFactor) * oP.setPointRelHum))
+        {
+            if (resource[nodeNum].internalFan & 0x02)
+            {
+                sprintf(ioBfr, "P%cb+\r", nodeNum + '0' );
+                actionChar = 'p';
+            }
+        }
+        else if (parmVal < ( (1.0 - oP.deadBandFactor) * oP.setPointRelHum))
+        {
+            if (resource[nodeNum].internalFan & 0x02)
+            {
+                sprintf(ioBfr, "P%cb-\r", nodeNum + '0');
+                actionChar = 'p';
+            }
+        }
+
+        if (actionChar)
+        {
+            putStr(ioBfr, true);
+            rs485TransmitEna(0);  // DEB
+                // Parse for Power Swi B response
+            if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+            if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+            if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+            if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }          // Protocol fail
+            if(ioBfr[3] != 'b'){ sysFault |= FLT_COMMUNICATION; retVal = -4; }          // Protocol fail
+        }
+        else { sysFault |= FLT_COMMUNICATION; retVal = -4; }          // Protocol fail
+    }
+
+        // Fourth, handle Air Exchangers.  FOr now, this is just based on temperature.
+        // If outside air is closer to setpoint T than inside air, exchange.
+    actionChar = 0;
+    if (resource[nodeNum].airExchanger)
+    {
+        sprintf(ioBfr, "T%c?\r", nodeNum + '0');
+        putStr(ioBfr, true);
+        rs485TransmitEna(0);  // DEB
+        actionChar = 't';
+
+                // Parse for Temperature response
+        if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+        if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+        if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+        if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }          // Protocol fail
+        for (c = 0; c < PARM_LEN; c++)
+        {
+            parmBfr[c] = ioBfr[c + 3];
+            if (parmBfr[c] == '\r') { parmBfr[c] = 0; break; }
+        }
+        parmBfr[c] = 0;
+        parmVal = atof(parmBfr);
+        actionChar = 0;
+        if (parmVal > REASONABLE_TEMP_MIN & parmVal < REASONABLE_TEMP_MAX)
+        {           // It's too hot inside and outside air is cooler.
+            if ((temperNowF > oP.setPointTempF) && (parmVal < ( (1.0 - oP.deadBandFactor) * temperNowF)))
+            {
+                if (resource[nodeNum].airExchanger & 0x01)
+                {
+                    sprintf(ioBfr, "K%ca+\r", nodeNum + '0' );
+                    oP.sysStat |= ST_AIR_EXCHGR_ON;
+                    actionChar = 'k';
+                }
+            }
+            else if ((temperNowF < oP.setPointTempF) && (parmVal > ( (1.0 + oP.deadBandFactor) * temperNowF)))
+            {       // It's too cool inside and outside air is warmer
+                if (resource[nodeNum].airExchanger & 0x01)
+                {
+                    sprintf(ioBfr, "K%ca+\r", nodeNum + '0');
+                    oP.sysStat |= ST_AIR_EXCHGR_ON;
+                    actionChar = 'k';
+                }
+            }
+            else
+            {
+                if (resource[nodeNum].airExchanger & 0x01)
+                {
+                    sprintf(ioBfr, "K%ca-\r", nodeNum + '0');
+                    oP.sysStat &= ~ST_AIR_EXCHGR_ON;
+                    actionChar = 'k';
+                }
+            }
+        }
+        if (actionChar)
+        {
+            putStr(ioBfr, true);
+            rs485TransmitEna(0);  // DEB
+                    // Parse for relay A response
+            if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+            if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+            if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+            if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }        // Protocol fail
+            if(ioBfr[3] != 'a'){ sysFault |= FLT_COMMUNICATION; retVal = -4; }                  // Protocol fail
+        }
+
+            // Now possible relay B
+        actionChar = 0;
+        if ((temperNowF > oP.setPointTempF) && (parmVal < ( (1.0 - oP.deadBandFactor) * temperNowF)))
+            {
+                if (resource[nodeNum].airExchanger & 0x02)
+                {
+                    sprintf(ioBfr, "K%cb+\r", nodeNum + '0' );
+                    oP.sysStat |= ST_AIR_EXCHGR_ON;
+                    actionChar = 'k';
+                }
+            }
+            else if ((temperNowF < oP.setPointTempF) && (parmVal > ( (1.0 + oP.deadBandFactor) * temperNowF)))
+            {
+                if (resource[nodeNum].airExchanger & 0x02)
+                {
+                    sprintf(ioBfr, "K%cb+\r", nodeNum + '0');
+                    oP.sysStat |= ST_AIR_EXCHGR_ON;
+                    actionChar = 'k';
+                }
+            }
+            else
+            {
+                if (resource[nodeNum].airExchanger & 0x02)
+                {
+                    sprintf(ioBfr, "K%cb-\r", nodeNum + '0');
+                    oP.sysStat &= ~ST_AIR_EXCHGR_ON;
+                    actionChar = 'k';
+                }
+            }
+        if (actionChar)
+        {
+            putStr(ioBfr, true);
+            rs485TransmitEna(0);  // DEB
+                    // Parse for Relay B response
+            if (getStr(ioBfr, TIMEOUT_PNET) < 1) { sysFault |= FLT_LOSTCHILD; retVal = 0; }    // No one there; end of story.
+            if(ioBfr[0] != actionChar)  { sysFault |= FLT_COMMUNICATION; retVal = -1; }
+            if(ioBfr[1] != 'k') { sysFault |= FLT_COMMUNICATION;  retVal = -2; }
+            if(ioBfr[2] != nodeNum + '0'){ sysFault |= FLT_COMMUNICATION; retVal = -3; }          // Protocol fail
+            if(ioBfr[3] != 'b'){ sysFault |= FLT_COMMUNICATION; retVal = -4; }          // Protocol fail
+        }
+        else { sysFault |= FLT_COMMUNICATION; retVal = -4; }          // Protocol fail
+    }
+
+    return(retVal);
+
+
+    // Provide string description of resource for owner Ch, incl relay A|B.
+    // resource is from resourceMatrix, eg resourceMatrix.heater
+    // owner is child <1..8> or parent <0>
+void resourceQuery(byte owner, char typeABFX, char *dest)
+{
+    unsigned long ulIdx = 1;
+    unsigned idx = 1;
+
+    strcpy(dest, "Free");
+    if (owner == 0)     // Parent
+    {
+        if ((typeABFX == 'A') && (resourceMatrix.airConditioner & RES_ParA)) strcpy(dest, "Air Cond");
+        else if ((typeABFX == 'B') && (resourceMatrix.heater & RES_ParB)) strcpy(dest, "Heater");
+    }
+    else
+    {
+        if (typeABFX == 'X')
+        {
+            if (owner == resourceMatrix.outsideTH) { strcpy(dest, "Exterior Sensor"); return; }
+        }
+        else if (typeABFX == 'F')
+        {
+            idx <<= (owner - 1);
+            if (resourceMatrix.floodSensor & idx) { strcpy(dest, "Flood Sensor"); return; }
+        }
+        else if (typeABFX == 'A' || typeABFX == 'B')
+        {
+            if (typeABFX == 'A') ulIdx <<= 2 * (owner - 1);        // Based on RES_ bitfield
+            else if (typeABFX == 'B') ulIdx <<= ((2 * (owner - 1)) + 1) ;
+
+            if (resourceMatrix.airConditioner & ulIdx)      strcpy(dest, "Air Cond");
+            else if (resourceMatrix.heater & ulIdx)         strcpy(dest, "Heater");
+            else if (resourceMatrix.dehumidifier & ulIdx)   strcpy(dest, "Dehumid");
+            else if (resourceMatrix.airExchanger & ulIdx)   strcpy(dest, "Air Exch");
+            else if (resourceMatrix.humidifier & ulIdx)     strcpy(dest, "Humidif");
+            else if (resourceMatrix.intFanTH & ulIdx)       strcpy(dest, "Int Fan");
+        }
+    }
+}
+
+    // Cycles through exclusive output options for child modules.  Child 1-based.
+    // Returns true on success.
+bool resourceKCycle(byte child, char relay, byte mode)
+{
+    unsigned long ulIdx = 1;
+
+    if (relay == 'A') ulIdx <<= 2 * (child - 1);        // Based on RES_ bitfield
+    else if (relay == 'B') ulIdx <<= ((2 * (child - 1)) + 1) ;
+    else return(false);
+
+    if (mode == RES_CYCLE_UP)
+    {
+        if (resourceMatrix.airConditioner & ulIdx) { resourceMatrix.airConditioner &= ~ulIdx; resourceMatrix.heater |= ulIdx; }
+        else if (resourceMatrix.heater & ulIdx) { resourceMatrix.heater &= ~ulIdx; resourceMatrix.dehumidifier |= ulIdx; }
+        else if (resourceMatrix.dehumidifier & ulIdx) { resourceMatrix.dehumidifier &= ~ulIdx; resourceMatrix.airExchanger |= ulIdx; }
+        else if (resourceMatrix.airExchanger & ulIdx) { resourceMatrix.airExchanger &= ~ulIdx; resourceMatrix.humidifier |= ulIdx; }
+        else if (resourceMatrix.humidifier & ulIdx) { resourceMatrix.humidifier &= ~ulIdx; resourceMatrix.intFanTH |= ulIdx; }
+        else if (resourceMatrix.intFanTH & ulIdx) { resourceMatrix.intFanTH &= ~ulIdx; }            // Goto null case
+        else if (!(resourceMatrix.intFanTH & ulIdx)) { resourceMatrix.airConditioner |= ulIdx; }    // Closes the cycle
+    }
+    else
+    {
+        if (resourceMatrix.airConditioner & ulIdx) { resourceMatrix.airConditioner &= ~ulIdx; resourceMatrix.intFanTH |= ulIdx; }
+        else if (resourceMatrix.intFanTH & ulIdx) { resourceMatrix.intFanTH &= ~ulIdx; resourceMatrix.humidifier |= ulIdx; }
+        else if (resourceMatrix.humidifier & ulIdx) { resourceMatrix.humidifier &= ~ulIdx; resourceMatrix.airExchanger |= ulIdx; }
+        else if (resourceMatrix.airExchanger & ulIdx) { resourceMatrix.airExchanger &= ~ulIdx; resourceMatrix.dehumidifier |= ulIdx; }
+        else if (resourceMatrix.dehumidifier & ulIdx) { resourceMatrix.dehumidifier &= ~ulIdx; resourceMatrix.heater |= ulIdx; }
+        else if (resourceMatrix.heater & ulIdx) { resourceMatrix.heater &= ~ulIdx; }            // Goto null case
+        else if (!(resourceMatrix.heater & ulIdx)) { resourceMatrix.airConditioner |= ulIdx; }    // Closes the cycle
+    }
+    return(true);
+}
+
+//    // ------------------
+//void resourceInitialize(void)
+//{
+////    resourceMatrix.heater = 0;
+////    resourceMatrix.airConditioner = 0;        // Parent low-current thermostat K1 & K2 only for first two resources
+////    resourceMatrix.dehumidifier = 0;
+////    resourceMatrix.airExchanger = 0;
+////    resourceMatrix.humidifier = 0;
+////    resourceMatrix.intFanTH = 0;
+////    resourceMatrix.outsideTH = 0;
+////    resourceMatrix.floodSensor = 0;
+//
+//        // Fake setup TODO
+//    resourceMatrix.heater = RES_ParB;
+//    resourceMatrix.airConditioner = RES_ParA;        // Parent low-current thermostat K1 & K2 only for first two resources
+//    resourceMatrix.dehumidifier = RES_Ch1A + RES_Ch2A;
+//    resourceMatrix.airExchanger = RES_Ch1B;
+//    resourceMatrix.humidifier = 0;
+//    resourceMatrix.intFanTH = 0;
+//    resourceMatrix.outsideTH = 1;
+//    resourceMatrix.floodSensor = 0x03;
+//}

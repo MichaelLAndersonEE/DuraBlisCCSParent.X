@@ -1,0 +1,16 @@
+data/dist/default/production/BW-CCS.X.production.hex.i
+data/BW-CCS.h.i
+data/dist/default/production/BW-CCS.X.production.elf.i
+data/adc.h.i
+data/child.c.i
+data/adc.c.i
+data/BW-CCS.c.i
+data/serial.h.i
+data/child.h.i
+data/.hgignore.i
+data/BW-CCS_0v1.c.i
+data/configs.h.i
+data/dist/default/production/BW-CCS.X.production.map.i
+data/serial.c.i
+data/Makefile.i
+data/IO Table.xlsx.i

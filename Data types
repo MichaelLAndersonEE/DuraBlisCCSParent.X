@@ -1,0 +1,12 @@
+Note on PIC32 data types
+
+                bits
+-------------------------------------------------
+unsigned short  16      aka 'unsigned'
+unsigned long   32
+
+float
+double          32      Use double throughout
+
+char            8
+unsigned char   8       aka 'byte'
